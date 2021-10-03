@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+# Purpose:
+
+import argparse
+import FinanceDataReader as fdr
+from numpy import NaN, concatenate
+import pandas as pd
+
+
+def get_args():
+    parser = argparse.ArgumentParser(description="Find price")
+    parser.add_argument("sector", metavar="sector", default="all", help="Sector")
+    parser.add_argument("sector1", metavar="sector1", default="", help="Sector")
+    parser.add_argument("sector2", metavar="sector2", default="", help="Sector")
+
+    return parser.parse_args()
+
+
+# ------------------------------------------------------------------------------
+def main():
+    args = get_args()
+    input_sector = []
+    input_sector.append(args.sector)
+    input_sector.append(args.sector1)
+    input_sector.append(args.sector2)
+
+    user_input = " ".join(input_sector).strip()
+
+    print(user_input)
+    df_krx = fdr.StockListing("KRX")
+    sectors = df_krx["Sector"].unique()
+
+    for str in sectors:
+        if type(str) != float:
+            str = str.replace(" ", "")
+
+    stock_list = pd.DataFrame()
+
+    if user_input in sectors:
+        stock_list = df_krx.loc[
+            (df_krx["Sector"] == user_input),
+            ["Symbol", "Market", "Name", "Sector", "Industry", "ListingDate"],
+        ]
+
+    for s in stock_list["Symbol"]:
+        print(fdr.DataReader(s))
+
+
+# ------------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    main()
